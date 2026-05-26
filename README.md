@@ -13,6 +13,7 @@ A browser-based point-of-sale system with an **Admin panel** for product managem
 - Edit product details (price, stock, category, description)
 - Delete products
 - Print barcodes — opens a print-ready page for each product
+- Preview the customer storefront via **"Preview Customer View"** button
 
 ### Customer Storefront (`/customer.html`)
 - **Scanner tab** — camera barcode scanner (CODE128, EAN-13, EAN-8, UPC, QR, Code39, ITF)
@@ -22,6 +23,7 @@ A browser-based point-of-sale system with an **Admin panel** for product managem
   - Low-stock warning when fewer than 5 units remain
 - Cart with per-item quantity controls, line totals, and grand total
 - Manual barcode entry as a fallback when camera is unavailable
+- **Checkout** — atomically decrements stock for all cart items on the server
 
 ---
 
@@ -66,14 +68,6 @@ Output:
   Customer →  http://192.168.x.x:3000/customer.html
 ```
 
-### 3. Open in browser
-
-| Page | URL |
-|---|---|
-| Landing | `http://localhost:3000` |
-| Admin | `http://localhost:3000/admin.html` |
-| Customer | `http://localhost:3000/customer.html` |
-
 Any device on the same Wi-Fi network can open the **Network** URLs above.
 
 > **Camera scanning requires HTTPS or localhost.** On a local network the browser may block camera access on the customer device. If that happens, use the manual barcode entry field or serve behind a reverse proxy with a TLS certificate.
@@ -85,15 +79,16 @@ Any device on the same Wi-Fi network can open the **Network** URLs above.
 ```
 smart-marketplace/
 ├── server.py          # Python HTTP server + REST API + SQLite
-├── index.html         # Landing page (links to admin / customer)
 ├── admin.html         # Admin panel
 ├── customer.html      # Customer storefront
 ├── css/
-│   └── styles.css     # All shared styles
+│   ├── base.css       # Variables, reset, navbar, buttons, forms, modals
+│   ├── admin.css      # Admin layout, product grid/cards, barcode preview
+│   └── customer.css   # Scanner, cart, catalog, category pills, tabs
 ├── js/
 │   ├── db.js          # Data layer — async fetch() calls to the API
 │   ├── admin.js       # Admin UI logic (product form, list, edit modal, print)
-│   └── customer.js    # Customer UI logic (scanner, cart, catalog)
+│   └── customer.js    # Customer UI logic (scanner, cart, catalog, checkout)
 └── data/
     └── marketplace.db # SQLite database (auto-created on first run)
 ```
@@ -102,14 +97,13 @@ smart-marketplace/
 
 ## REST API
 
-The server exposes a simple REST API at `/api/products`.
-
 | Method | Path | Description |
 |---|---|---|
 | `GET` | `/api/products` | Return all products (JSON array) |
 | `POST` | `/api/products` | Create a new product |
 | `PUT` | `/api/products/:id` | Update an existing product |
 | `DELETE` | `/api/products/:id` | Delete a product |
+| `POST` | `/api/checkout` | Decrement stock for all cart items atomically |
 
 ### Product schema
 
@@ -127,13 +121,23 @@ The server exposes a simple REST API at `/api/products`.
 }
 ```
 
+### Checkout request body
+
+```json
+{
+  "items": [
+    { "barcode": "MKT-AB3X7YZ12", "qty": 2 }
+  ]
+}
+```
+
 ### Error responses
 
 | Status | Meaning |
 |---|---|
-| `400` | Missing required fields (`name`, `barcode`) |
+| `400` | Missing required fields or empty cart |
 | `404` | Product ID not found |
-| `409` | Barcode already in use by another product |
+| `409` | Barcode already in use / insufficient stock |
 
 ---
 
@@ -153,6 +157,7 @@ The server exposes a simple REST API at `/api/products`.
 
 - **Product data** lives in SQLite on the server — shared across all devices.
 - **Cart data** lives in the customer's browser `sessionStorage` — per-session, private.
+- The admin panel polls every 4 seconds for live stock updates.
 - The server also serves all static files (HTML, CSS, JS), so no separate web server is needed.
 
 ---
@@ -162,14 +167,11 @@ The server exposes a simple REST API at `/api/products`.
 1. Admin registers a product → assigns a `CODE128` barcode (auto-generated or custom)
 2. Admin prints the barcode label from the product card
 3. Customer scans the label with their device camera **or** types the code manually
-4. The app looks up the barcode via `GET /api/products`, finds the product, and adds it to the cart
+4. The app looks up the barcode, finds the product, and adds it to the cart
+5. Customer checks out → server atomically decrements stock for each item
 
 ---
 
-## Roadmap
+## Physical Barcode Scanner
 
-- [ ] Checkout process (order creation, receipt)
-- [ ] Customer authentication
-- [ ] Order history
-- [ ] Stock decrement on checkout
-- [ ] HTTPS / local TLS for camera access on non-localhost devices
+USB/Bluetooth HID scanners (the common handheld retail kind) work out of the box — they act as a keyboard and type the barcode followed by Enter, which is caught by the manual entry field on the customer page.
