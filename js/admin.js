@@ -256,14 +256,7 @@ function initAddForm() {
 
 // ── Init ──────────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // Guard: redirect to login if session is missing or expired
-  const allowed = await Auth.guardPage();
-  if (!allowed) return;
-
-  // Inject auth token into the DB layer for write operations
-  DB.setToken(Auth.getToken());
-
+document.addEventListener('DOMContentLoaded', () => {
   initAddForm();
   renderProductList();
 

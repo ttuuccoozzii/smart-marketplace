@@ -193,7 +193,6 @@ class Handler(SimpleHTTPRequestHandler):
             self._no_content()
 
         elif path == '/api/products':
-            if not self._require_auth(): return
             data = self._read_json()
             if not data.get('barcode') or not data.get('name'):
                 self._json({'error': 'name and barcode are required'}, 400)
@@ -243,7 +242,6 @@ class Handler(SimpleHTTPRequestHandler):
     def do_PUT(self):
         parts = self._route().split('/')
         if len(parts) == 4 and parts[2] == 'products':
-            if not self._require_auth(): return
             updated = db_update_product(parts[3], self._read_json())
             self._json(updated) if updated else self._json({'error': 'not_found'}, 404)
 
@@ -251,7 +249,6 @@ class Handler(SimpleHTTPRequestHandler):
     def do_DELETE(self):
         parts = self._route().split('/')
         if len(parts) == 4 and parts[2] == 'products':
-            if not self._require_auth(): return
             db_delete_product(parts[3])
             self._no_content()
 
