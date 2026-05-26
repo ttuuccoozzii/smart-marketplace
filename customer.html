@@ -8,6 +8,13 @@
 </head>
 <body>
 
+  <!-- Admin preview bar (only visible when admin is logged in) -->
+  <div id="admin-preview-bar" style="display:none">
+    <span class="preview-label">👁 Admin Preview Mode</span>
+    <span class="preview-note">This is how customers see the store</span>
+    <a href="admin.html" class="btn btn-sm preview-back-btn">← Back to Admin Panel</a>
+  </div>
+
   <!-- Navbar -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
@@ -119,7 +126,19 @@
   </div>
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="js/admin-auth.js"></script>
   <script src="js/db.js"></script>
   <script src="js/customer.js"></script>
+  <script>
+    // Show admin bar only if a valid admin session exists
+    (async () => {
+      const token = Auth.getToken();
+      if (!token) return;
+      const res = await fetch('/api/admin/check', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).catch(() => ({ ok: false }));
+      if (res.ok) document.getElementById('admin-preview-bar').style.display = 'flex';
+    })();
+  </script>
 </body>
 </html>
