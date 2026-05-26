@@ -126,19 +126,14 @@
   </div>
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <script src="js/admin-auth.js"></script>
   <script src="js/db.js"></script>
   <script src="js/customer.js"></script>
   <script>
-    // Show admin bar only if a valid admin session exists
-    (async () => {
-      const token = Auth.getToken();
-      if (!token) return;
-      const res = await fetch('/api/admin/check', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }).catch(() => ({ ok: false }));
-      if (res.ok) document.getElementById('admin-preview-bar').style.display = 'flex';
-    })();
+    // Show admin bar only when admin explicitly navigates here with ?preview=1
+    // No auth code, no tokens — just a URL flag set by the admin panel link
+    if (new URLSearchParams(location.search).get('preview') === '1') {
+      document.getElementById('admin-preview-bar').style.display = 'flex';
+    }
   </script>
 </body>
 </html>
