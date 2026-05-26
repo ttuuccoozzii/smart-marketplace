@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Marketplace</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <span class="brand-icon">🏪</span>
+      Marketplace
+      <small>Admin</small>
+    </a>
+    <div class="navbar-actions">
+      <a href="customer.html" class="btn btn-outline">🛒 Customer View</a>
+    </div>
+  </nav>
+
+  <!-- Main layout -->
+  <div class="admin-layout">
+
+    <!-- ── Left: Registration form ── -->
+    <aside class="admin-form-panel">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Register Product</h2>
+        </div>
+        <div class="panel-body">
+          <form id="product-form" autocomplete="off">
+
+            <div class="form-group">
+              <label for="name">Product Name *</label>
+              <input type="text" id="name" placeholder="e.g. Wireless Headphones" required maxlength="100">
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category</label>
+              <input type="text" id="category" placeholder="e.g. Electronics, Food, Clothing" maxlength="50">
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description</label>
+              <textarea id="description" placeholder="Brief product description..." maxlength="300"></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="price">Price ($) *</label>
+                <input type="number" id="price" step="0.01" min="0" max="999999" placeholder="0.00" required>
+              </div>
+              <div class="form-group">
+                <label for="quantity">Stock Qty *</label>
+                <input type="number" id="quantity" min="0" max="99999" placeholder="0" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="barcode">Barcode *</label>
+              <div class="input-group">
+                <input type="text" id="barcode" placeholder="Enter custom or generate" maxlength="80" required>
+                <button type="button" id="generate-barcode" class="btn btn-secondary">⚡ Generate</button>
+              </div>
+            </div>
+
+            <!-- Barcode preview -->
+            <div id="barcode-preview-box" class="barcode-preview-box" style="display:none; margin-bottom:16px;">
+              <svg id="barcode-preview-svg"></svg>
+              <span id="barcode-preview-value" class="barcode-value"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg">
+              ＋ Register Product
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Right: Product list ── -->
+    <main>
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Products <span id="product-count" class="badge">0</span></h2>
+          <input type="text" id="search" class="search-input" placeholder="🔍 Search name, barcode, category…">
+        </div>
+        <div id="product-list" class="product-grid"></div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ── Edit product modal ── -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Edit Product</h3>
+        <button class="btn-icon" onclick="closeEdit()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-form" autocomplete="off">
+
+          <div class="form-group">
+            <label for="edit-name">Product Name *</label>
+            <input type="text" id="edit-name" required maxlength="100">
+          </div>
+
+          <div class="form-group">
+            <label for="edit-category">Category</label>
+            <input type="text" id="edit-category" maxlength="50">
+          </div>
+
+          <div class="form-group">
+            <label for="edit-description">Description</label>
+            <textarea id="edit-description" maxlength="300"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-price">Price ($) *</label>
+              <input type="number" id="edit-price" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-quantity">Stock Qty *</label>
+              <input type="number" id="edit-quantity" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Barcode (read-only)</label>
+            <div style="font-family:monospace;font-size:13px;padding:9px 12px;background:var(--bg);border-radius:6px;border:1.5px solid var(--border);color:var(--text-muted)" id="edit-barcode-display"></div>
+          </div>
+
+          <div class="modal-footer" style="margin: 0 -20px -20px; padding: 14px 20px; border-top: 1px solid var(--border)">
+            <button type="button" class="btn btn-secondary" onclick="closeEdit()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

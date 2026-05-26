@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop — Marketplace</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <span class="brand-icon">🏪</span>
+      Marketplace
+    </a>
+    <div class="navbar-actions">
+      <span style="font-size:13px;color:var(--text-muted)">
+        Cart <span id="cart-badge" class="cart-badge" style="display:none">0</span>
+      </span>
+      <a href="admin.html" class="btn btn-ghost btn-sm">⚙️ Admin</a>
+    </div>
+  </nav>
+
+  <div class="customer-layout">
+
+    <!-- ── Left panel: tabs ── -->
+    <div class="scanner-panel">
+      <div class="panel">
+
+        <!-- Tab bar -->
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="scanner">📷 Scanner</button>
+          <button class="tab-btn" data-tab="browse">🛍 Browse Products</button>
+        </div>
+
+        <!-- ══ SCANNER TAB ══ -->
+        <div id="tab-scanner" class="tab-content active">
+
+          <div class="scanner-container">
+            <div id="scanner-placeholder" class="scanner-placeholder">
+              <div class="scan-icon">📷</div>
+              <p>Press <strong>Start Camera</strong> to scan barcodes</p>
+            </div>
+            <div id="scanner-view" style="width:100%"></div>
+          </div>
+
+          <div class="scanner-controls">
+            <button id="start-scanner" class="btn btn-primary">▶ Start Camera</button>
+            <button id="stop-scanner" class="btn btn-secondary" style="display:none">■ Stop Camera</button>
+            <span style="font-size:12px;color:var(--text-muted);margin-left:4px">Point camera at a barcode</span>
+          </div>
+
+          <div id="scan-feedback" class="scan-feedback"></div>
+
+          <div class="scanner-divider">or enter barcode manually</div>
+          <div class="manual-entry">
+            <input type="text" id="manual-barcode" placeholder="Type barcode and press Enter…"
+              autocomplete="off" spellcheck="false">
+            <button id="manual-submit" class="btn btn-secondary">Add</button>
+          </div>
+
+        </div>
+
+        <!-- ══ BROWSE TAB ══ -->
+        <div id="tab-browse" class="tab-content">
+
+          <div class="catalog-controls">
+            <input type="text" id="catalog-search" class="catalog-search"
+              placeholder="🔍  Search products…" autocomplete="off">
+          </div>
+
+          <div id="category-pills" class="category-pills"></div>
+
+          <div id="catalog-grid" class="catalog-grid"></div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Right: Cart ── -->
+    <div class="cart-panel">
+      <div class="panel">
+
+        <div class="cart-header">
+          <h2>🛒 Cart <span id="cart-badge-inline" class="cart-badge" style="display:none">0</span></h2>
+          <button id="clear-cart-btn" class="btn btn-ghost btn-sm"
+            style="display:none;color:var(--danger)">🗑 Clear</button>
+        </div>
+
+        <div id="cart-empty" class="cart-empty">
+          <div class="empty-icon">🛒</div>
+          <p>Your cart is empty</p>
+          <small>Scan or browse to add items</small>
+        </div>
+
+        <div id="cart-items" class="cart-items"></div>
+
+        <div class="cart-footer">
+          <div class="cart-totals">
+            <div class="cart-total-row">
+              <span>Subtotal</span><span id="cart-subtotal">$0.00</span>
+            </div>
+            <div class="cart-total-row grand">
+              <span>Total</span><span id="cart-total">$0.00</span>
+            </div>
+          </div>
+          <button id="checkout-btn" class="btn btn-success btn-full btn-lg" disabled>
+            Proceed to Checkout →
+          </button>
+          <p style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:10px">
+            Cart is saved for this browser session
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/customer.js"></script>
+</body>
+</html>
