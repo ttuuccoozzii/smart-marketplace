@@ -381,8 +381,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Checkout (placeholder)
-  document.getElementById('checkout-btn').addEventListener('click', () => {
-    showToast('Checkout coming soon!', 'info');
+  // Checkout — decrement stock on server, then clear cart
+  document.getElementById('checkout-btn').addEventListener('click', async () => {
+    if (Cart.items.length === 0) return;
+
+    const btn = document.getElementById('checkout-btn');
+    btn.disabled = true;
+    btn.textContent = 'Processing…';
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          items: Cart.items.map(i => ({ barcode: i.barcode, qty: i.qty }))
+        })
+      });
+
+      if (res.ok) {
+        Cart.clear();
+        showToast('Purchase complete! Thank you. 🎉', 'success');
+        if (isBrowseActive()) renderCatalog();
+      } else {
+        const data = await res.json();
+        showToast(data.error || 'Checkout failed.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Proceed to Checkout →';
+      }
+    } catch {
+      showToast('Cannot reach server.', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Proceed to Checkout →';
+    }
   });
 });

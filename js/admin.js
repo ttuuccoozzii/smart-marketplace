@@ -301,4 +301,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('edit-modal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeEdit();
   });
+
+  // Poll for stock changes every 4 seconds (customers checking out)
+  setInterval(() => {
+    // Skip refresh while admin is editing to avoid losing focus
+    if (!editingId) {
+      renderProductList(document.getElementById('search').value);
+    }
+  }, 4000);
 });

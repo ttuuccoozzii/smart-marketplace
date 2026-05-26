@@ -203,6 +203,39 @@ class Handler(SimpleHTTPRequestHandler):
             except sqlite3.IntegrityError:
                 self._json({'error': 'barcode_exists'}, 409)
 
+        elif path == '/api/checkout':
+            # No auth required — customers check out
+            items = self._read_json().get('items', [])
+            if not items:
+                self._json({'error': 'Cart is empty'}, 400)
+                return
+
+            failed = []
+            with sqlite3.connect(DB_FILE) as conn:
+                conn.row_factory = sqlite3.Row
+                for item in items:
+                    barcode = item.get('barcode', '')
+                    qty     = int(item.get('qty', 1))
+                    row = conn.execute(
+                        'SELECT name, quantity FROM products WHERE barcode=?', (barcode,)
+                    ).fetchone()
+                    if not row:
+                        failed.append(f'"{barcode}" not found')
+                        continue
+                    if row['quantity'] < qty:
+                        failed.append(f'"{row["name"]}" only has {row["quantity"]} left')
+                        continue
+                    conn.execute(
+                        'UPDATE products SET quantity = quantity - ?, updated_at = ? WHERE barcode = ?',
+                        (qty, datetime.now(timezone.utc).isoformat(), barcode)
+                    )
+                conn.commit()
+
+            if failed:
+                self._json({'error': 'Stock issues: ' + '; '.join(failed)}, 409)
+            else:
+                self._json({'ok': True})
+
         else:
             self._json({'error': 'Not found'}, 404)
 
