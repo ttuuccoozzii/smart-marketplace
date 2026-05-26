@@ -130,8 +130,13 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        if self._route() == '/api/products':
+        path = self._route()
+        if path == '/api/products':
             self._json(db_get_products())
+        elif path == '' or path == '/':
+            self.send_response(302)
+            self.send_header('Location', '/admin.html')
+            self.end_headers()
         else:
             super().do_GET()
 
